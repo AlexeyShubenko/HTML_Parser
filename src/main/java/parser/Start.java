@@ -19,7 +19,7 @@ public class Start {
 
         Integer count = pagesCount(url);
         System.out.println(count);
-        for (int i = 1; i <= 28; i++) {
+        for (int i = 1; i <= 21; i++) {
             String tempUrl = url+"?page="+i;
 
             List<Element> goods = initialSetUp(tempUrl);
@@ -51,13 +51,29 @@ public class Start {
                String brandName = divBrandName.child(0).child(0).text();
                Element divProductPrice = article.getElementsByAttributeValue("class","js-product-price product-price").first();
 
-               //in div product_name is a tag <div itemprop="name"> and in this div is a tag <a>
-               Element d1 = divProductPrice.getElementsByClass("price actual-price actual-price").first();
+               String productPrice="0";
+               String productInitialPrice = "0";
 
-//                String productPrice =d1.child(0).text();
+               Element divActualPrice = divProductPrice.getElementsByClass("price actual-price actual-price").first();
+               //depend on discounts, this 2 tabs appear when discount is existed
+               Element divActualOldPrice = divProductPrice.getElementsByClass("price isStriked").first();
+               Element divActualNewPrice = divProductPrice.getElementsByClass("price isOffer actual-price").first();
+               if(Objects.nonNull(divActualPrice)){
+                    //if price is unchangeable
+                    //in div product_name is a tag <div itemprop="name"> and in this div is a tag <a>
+//                   Element divActualPrice = divProductPrice.getElementsByClass("price actual-price actual-price").first();
+                   productPrice = divActualPrice.child(0).text();
+                   productInitialPrice = productPrice;
+
+               }else if(Objects.nonNull(divActualOldPrice)
+                       && Objects.nonNull(divActualNewPrice)) {
+                   //if price was changed ()
+                   productPrice =divActualOldPrice.child(0).text();
+                   productInitialPrice = divActualNewPrice.child(0).text();
+               }
 
 
-               products.add(new Product(productName,brandName,"0",productId));
+               products.add(new Product(productName,brandName, productPrice, productInitialPrice,productId));
             }
 
         }

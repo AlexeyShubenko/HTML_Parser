@@ -14,10 +14,11 @@ public class Product {
     public Product() {
     }
 
-    public Product(String name, String brand, String price, String id) {
+    public Product(String name, String brand, String price, String initialPrice, String id) {
         this.name = name;
         this.brand = brand;
         this.price = price;
+        this.initialPrice = initialPrice;
         this.id = id;
     }
 
@@ -104,6 +105,7 @@ public class Product {
                 "name='" + name + '\'' +
                 ", brand='" + brand + '\'' +
                 ", price='" + price + '\'' +
+                ", initialPrice='" + initialPrice + '\'' +
                 ", id='" + id + '\'' +
                 '}';
     }
