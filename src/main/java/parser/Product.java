@@ -1,13 +1,20 @@
 package parser;
 
-public class Product {
+import javax.xml.bind.annotation.*;
 
+@XmlAccessorType(XmlAccessType.FIELD)
+public class Product {
+//    @XmlValue
     private String name;
+
     private String brand;
     private String color;
+
     private String price;
+
     private String initialPrice;
     private String description;
+
     private String id;
     private String shippingCost;
 
@@ -34,7 +41,6 @@ public class Product {
         this.id = id;
         this.shippingCost = shippingCost;
     }
-
     public String getName() {
         return name;
     }
