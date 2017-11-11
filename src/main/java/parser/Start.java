@@ -4,11 +4,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import parser.domain.Offers;
+import parser.domain.Product;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.PropertyException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,85 +24,90 @@ public class Start {
 
 
     public static void main(String[] args) throws IOException {
-        List<Product> products = new ArrayList<>();
-
         Integer count = pagesCount(url);
-        System.out.println(count);
+//        System.out.println(count);
+        Offers offers = new Offers(readDataFromElements(count));
 
 
+//        products.forEach(System.out::println);
+//        System.out.println(products.size());
+        listToXML(offers);
+    }
+
+
+    public static List<Product> readDataFromElements(Integer count) throws IOException {
+        List<Product> products = new ArrayList<>();
         for (int i = 1; i <= count; i++) {
             String tempUrl = url+"?page="+i;
-            List<Element> goods = initialSetUp(tempUrl);
-            
-           forProducts: for (Element good : goods) {
-               //root tag of every product
-               Element article = good.select("article").first();
-               String productId = article.attr("data-product-id");
-               //tag div with product name
-               Element divProductName = article.getElementsByAttributeValue("class","js-product-name product-name").first();
-               //tag div with brand name
-               Element divBrandName = article.getElementsByAttributeValue("class","product-brand").first();
-               //divProductName or divBrandName can be null if among list of all products some advertising is happened
-               if(Objects.isNull(divProductName) || Objects.isNull(divBrandName)){
-                   continue forProducts;
-               }
+            List<Element> goods = getAllElementsFromPage(tempUrl);
+
+            forProducts: for (Element good : goods) {
+                //root tag of every product
+                Element article = good.select("article").first();
+                String productId = article.attr("data-product-id");
+                //tag div with product name
+                Element divProductName = article.getElementsByAttributeValue("class","js-product-name product-name").first();
+                //tag div with brand name
+                Element divBrandName = article.getElementsByAttributeValue("class","product-brand").first();
+                //divProductName or divBrandName can be null if among list of all products some advertising is happened
+                if(Objects.isNull(divProductName) || Objects.isNull(divBrandName)){
+                    continue forProducts;
+                }
                /* in div product_name is a tag <div itemprop="name"> and in this div is a tag <a>
                * <div class='js-product-name product-name'>
                *     <div itemprop="name">
                *         <a>Product name</a>
                *         ....
                * */
-               String productName = divProductName.child(0).child(0).text();
+                String productName = divProductName.child(0).child(0).text();
                /*in div brand_name is a tag <div itemprop="name"> and in this div is a tag <a>
                * <div class='product-brand'>
                *     <div itemprop="name">
                *         <a>Brand name</a>
                *         ....
                * */
-               String brandName = divBrandName.child(0).child(0).text();
-               //element which contains price
-               Element divProductPrice = article.getElementsByAttributeValue("class","js-product-price product-price").first();
+                String brandName = divBrandName.child(0).child(0).text();
+                //element which contains price
+                Element divProductPrice = article.getElementsByAttributeValue("class","js-product-price product-price").first();
 
-               String productPrice="0";
-               String productInitialPrice = "0";
+                String productPrice="0";
+                String productInitialPrice = "0";
 
-               Element divActualPrice = divProductPrice.getElementsByClass("price actual-price actual-price").first();
-               //some products have price like ab100
-               //for this prices was created the next element
-               Element divActualABPrice = divProductPrice.getElementsByClass("price  actual-price").first();
-               //depend on discounts, this 2 tabs appear when discount is existed
-               Element divActualOldPrice = divProductPrice.getElementsByClass("price isStriked").first();
-               //element which contains actual and discount price with  _ ab _
-               Element divActualABNewPrice = divProductPrice.getElementsByClass("price isOffer actual-price").first();
-               //element which NOT contains actual and discount price with  _ ab _
-               Element divActualNewPrice = divProductPrice.getElementsByClass("price isOffer  actual-price actual-price").first();
-               ////////////////////////////////////
-               if(Objects.nonNull(divActualPrice)) {
-                   //if price is unchangeable
-                   //in div product_name is a tag <div itemprop="name"> and in this div is a tag <a>
-                   productPrice = divActualPrice.child(0).text();
-                   productInitialPrice = productPrice;
-               }
-               if(Objects.nonNull(divActualOldPrice)
-                       || Objects.nonNull(divActualABNewPrice) || Objects.nonNull(divActualNewPrice)) {
-                   //if price was changed ()
-                   productPrice =divActualOldPrice.child(0).text();
-                   if(Objects.nonNull(divActualABNewPrice)) {
-                       productInitialPrice = divActualABNewPrice.child(0).text();
-                   }else {
-                       productInitialPrice = divActualNewPrice.child(0).text();
-                   }
-               }
-               if(Objects.nonNull(divActualABPrice)){
-                   productPrice = divActualABPrice.child(0).text();
-                   productInitialPrice = productPrice;
-               }
-               products.add(new Product(productName,brandName, productPrice, productInitialPrice,productId));
+                Element divActualPrice = divProductPrice.getElementsByClass("price actual-price actual-price").first();
+                //some products have price like ab100
+                //for this prices was created the next element
+                Element divActualABPrice = divProductPrice.getElementsByClass("price  actual-price").first();
+                //depend on discounts, this 2 tabs appear when discount is existed
+                Element divActualOldPrice = divProductPrice.getElementsByClass("price isStriked").first();
+                //element which contains actual and discount price with  _ ab _
+                Element divActualABNewPrice = divProductPrice.getElementsByClass("price isOffer actual-price").first();
+                //element which NOT contains actual and discount price with  _ ab _
+                Element divActualNewPrice = divProductPrice.getElementsByClass("price isOffer  actual-price actual-price").first();
+                ////////////////////////////////////
+                if(Objects.nonNull(divActualPrice)) {
+                    //if price is unchangeable
+                    //in div product_name is a tag <div itemprop="name"> and in this div is a tag <a>
+                    productPrice = divActualPrice.child(0).text();
+                    productInitialPrice = productPrice;
+                }
+                if(Objects.nonNull(divActualOldPrice)
+                        || Objects.nonNull(divActualABNewPrice) || Objects.nonNull(divActualNewPrice)) {
+                    //if price was changed ()
+                    productPrice =divActualOldPrice.child(0).text();
+                    if(Objects.nonNull(divActualABNewPrice)) {
+                        productInitialPrice = divActualABNewPrice.child(0).text();
+                    }else {
+                        productInitialPrice = divActualNewPrice.child(0).text();
+                    }
+                }
+                if(Objects.nonNull(divActualABPrice)){
+                    productPrice = divActualABPrice.child(0).text();
+                    productInitialPrice = productPrice;
+                }
+                products.add(new Product(productName,brandName, productPrice, productInitialPrice,productId));
             }
         }
-        products.forEach(System.out::println);
-        System.out.println(products.size());
-        listToXML(new Offers(products));
+        return products;
     }
 
     public static void listToXML(Offers offers) {
@@ -176,7 +182,7 @@ public class Start {
         return pages;
     }
 
-    private static Elements initialSetUp(String url) throws IOException {
+    private static Elements getAllElementsFromPage(String url) throws IOException {
         Document document = Jsoup.connect(url).get();
         //root tag
         Element mainContentElements = document.getElementById("main_content");
