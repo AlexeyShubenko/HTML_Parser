@@ -18,19 +18,18 @@ import java.util.Objects;
 
 public class Start {
 
-//    public static final String url = "https://www.aboutyou.de/maenner/schuhe/boots-und-stiefel";
-    public static final String url = "https://www.aboutyou.de/maenner/bekleidung";
+//    public static final String url = "https://www.aboutyou.de/frauen/bekleidung";
+    public static final String url = "https://www.aboutyou.de/frauen/bekleidung/kleider";
 //    public static final String url = "https://www.aboutyou.de/maenner/sport/sportarten/skate/accessoires/muetzen";
 
-
+/*    public static final String urlMaenner = "https://www.aboutyou.de/maenner";
+    public static final String urlFrauen = "https://www.aboutyou.de/frauen";
+    public static final String baseURL = "https://www.aboutyou.de";
+*/
     public static void main(String[] args) throws IOException {
+
         Integer count = pagesCount(url);
-//        System.out.println(count);
         Offers offers = new Offers(readDataFromElements(count));
-
-
-//        products.forEach(System.out::println);
-//        System.out.println(products.size());
         listToXML(offers);
     }
 
@@ -123,7 +122,7 @@ public class Start {
             jaxbMarshaller.marshal(offers, file);
         } catch (JAXBException e) {
             e.printStackTrace();
-        }  
+        }
 
     }
 
@@ -210,5 +209,28 @@ public class Start {
         return divRowList.getElementsByClass("col-xs-4 isLayout3");
     }
 
+
+       /*
+    //allGroups("frauen"); or allGroups("maenner")
+    public static void allGroups(String group) throws IOException {
+        String tempUrl = baseURL+"/"+group;
+        System.out.println(tempUrl);
+        Document document = Jsoup.connect(tempUrl).get();
+        //root tag
+        Element divApp = document.getElementById("app");
+        Element ul = divApp.child(0).child(0).child(1).child(0);
+        Elements liElements = ul.children();
+        //delete Marken and Trends elements
+        for (int i = 0; i < liElements.size(); i++) {
+            Element element = liElements.get(i).child(0);
+            if(element.text().equals("Trends") || element.text().equals("Marken")){
+                liElements.remove(liElements.get(i));
+            }
+        }
+        for (Element liElement : liElements) {
+            String newURL = tempUrl+"/"+liElement.child(0).text().toLowerCase();
+            System.out.println(newURL);
+        }
+    }*/
 
 }
