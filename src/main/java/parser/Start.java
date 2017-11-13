@@ -22,21 +22,17 @@ public class Start {
     public static final String url = "https://www.aboutyou.de/frauen/bekleidung/kleider";
 //    public static final String url = "https://www.aboutyou.de/maenner/sport/sportarten/skate/accessoires/muetzen";
 
-/*    public static final String urlMaenner = "https://www.aboutyou.de/maenner";
-    public static final String urlFrauen = "https://www.aboutyou.de/frauen";
-    public static final String baseURL = "https://www.aboutyou.de";
-*/
     public static void main(String[] args) throws IOException {
 
-        Integer count = pagesCount(url);
-        Offers offers = new Offers(readDataFromElements(count));
+        Integer pages = pagesCount(url);
+        Offers offers = new Offers(readDataFromElements(pages));
         listToXML(offers);
     }
 
 
-    public static List<Product> readDataFromElements(Integer count) throws IOException {
+    public static List<Product> readDataFromElements(Integer pages) throws IOException {
         List<Product> products = new ArrayList<>();
-        for (int i = 1; i <= count; i++) {
+        for (int i = 1; i <= pages; i++) {
             String tempUrl = url+"?page="+i;
             List<Element> goods = getAllElementsFromPage(tempUrl);
 
@@ -210,8 +206,8 @@ public class Start {
     }
 
 
-       /*
-    //allGroups("frauen"); or allGroups("maenner")
+    /*
+    //allGroups("frauen") or allGroups("maenner")
     public static void allGroups(String group) throws IOException {
         String tempUrl = baseURL+"/"+group;
         System.out.println(tempUrl);
@@ -231,6 +227,7 @@ public class Start {
             String newURL = tempUrl+"/"+liElement.child(0).text().toLowerCase();
             System.out.println(newURL);
         }
-    }*/
+    }
+    */
 
 }

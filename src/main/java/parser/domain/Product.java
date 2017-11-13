@@ -4,7 +4,6 @@ import javax.xml.bind.annotation.*;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Product {
-//    @XmlValue
     private String name;
 
     private String brand;
